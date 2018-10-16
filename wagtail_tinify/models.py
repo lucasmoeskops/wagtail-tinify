@@ -1,8 +1,7 @@
 from __future__ import unicode_literals
 
 import os, threading, tinify
-from urlparse import urlparse
-from django.db.models.signals import post_save
+from urllib import parse
 from django.templatetags.static import StaticNode
 from django.conf import settings
 
@@ -19,17 +18,18 @@ tinify.key = os.getenv('TINYPNG_API_KEY')
 if cf_api_key and cf_api_email and cf_api_key:
     import CloudFlare
 
+
 class TinyPngOptimizeThread(threading.Thread):
     def __init__(self, instance, **kwargs):
         self.instance = instance
-        super(TinyPngOptimizeThread, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
     def run(self):
-        if tinify.key != None:
+        if tinify.key is not None:
             # If aws keys are available, use them to fetch the image and write back
             if aws_key_id and aws_secret and aws_bucket and aws_region:
-                source_url_http = urlparse(StaticNode.handle_simple(self.instance.file.name), scheme='http').geturl()
-                source_url_https = urlparse(StaticNode.handle_simple(self.instance.file.name), scheme='https').geturl()
+                source_url_http = parse(StaticNode.handle_simple(self.instance.file.name), scheme='http').geturl()
+                source_url_https = parse(StaticNode.handle_simple(self.instance.file.name), scheme='https').geturl()
                 source = tinify.from_url(source_url_https)
                 path = "%s/%s" % (aws_bucket, self.instance.file.name)
                 source.store(service='s3',aws_access_key_id=aws_key_id,aws_secret_access_key=aws_secret,region=aws_region,path=path)
@@ -42,5 +42,5 @@ class TinyPngOptimizeThread(threading.Thread):
                 source = tinify.from_file(path)
                 source.to_file(path)
         else:
-            print "No tinify key"
+            print("No tinify key")
 
