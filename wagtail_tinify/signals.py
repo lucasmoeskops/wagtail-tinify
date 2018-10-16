@@ -1,5 +1,5 @@
 from wagtail_tinify.models import TinyPngOptimizeThread
-from wagtail.wagtailimages import get_image_model
+from wagtail.images import get_image_model
 from django.dispatch.dispatcher import receiver
 from django.db.models.signals import post_save
 
